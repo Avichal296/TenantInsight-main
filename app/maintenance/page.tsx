@@ -1,5 +1,6 @@
 "use client"
 
+import { motion } from "framer-motion"
 import DashboardNav from "@/components/dashboard-nav"
 import DashboardSidebar from "@/components/dashboard-sidebar"
 import { Card } from "@/components/ui/card"
@@ -24,6 +25,7 @@ interface MaintenanceRequest {
   estimated_cost?: number
   actual_cost?: number
   created_at: string
+  unit_number?: string
   tenants?: {
     first_name: string
     last_name: string
@@ -74,9 +76,7 @@ export default function MaintenancePage() {
   }, [user])
 
   // Handle tab changes
-  const handleTabChange = (index: number | null) => {
-    if (index === null) return
-
+  const handleTabChange = (index: number) => {
     setActiveTab(index)
     let filteredRequests = maintenanceRequests
 
@@ -149,43 +149,101 @@ export default function MaintenancePage() {
     }
   }
 
+  const fadeInUp = {
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
+  }
+
+  const stagger = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardNav />
-      <div className="flex">
-        <DashboardSidebar />
-        <main className="flex-1 p-6 md:p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-              <h1 className="text-3xl font-bold text-foreground mb-4 md:mb-0">Maintenance</h1>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Search maintenance issues..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-                <Button className="gap-2" onClick={() => {/* TODO: Open create maintenance modal */}}>
-                  <Plus className="w-4 h-4" />
-                  Report Issue
-                </Button>
-              </div>
-            </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-red-50/30 via-rose-50/20 to-pink-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"></div>
+        <div className="absolute top-20 right-20 w-72 h-72 bg-red-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-rose-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-pink-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
 
-            <div className="mb-8">
-              <ExpandableTabs
-                tabs={tabs}
-                className="w-full md:w-auto"
-                activeColor="text-primary"
-                onChange={handleTabChange}
-              />
-            </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10"
+      >
+        <DashboardNav />
+        <div className="flex">
+          <DashboardSidebar />
+          <main className="flex-1 p-6 md:p-8">
+            <div className="max-w-7xl mx-auto">
+              <motion.div
+                className="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+              >
+                <motion.h1
+                  className="text-3xl font-bold text-foreground mb-4 md:mb-0"
+                  variants={fadeInUp}
+                >
+                  Maintenance
+                </motion.h1>
+                <motion.div
+                  className="flex items-center gap-4"
+                  variants={fadeInUp}
+                >
+                  <div className="relative group">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 group-hover:text-primary transition-colors" />
+                    <input
+                      type="text"
+                      placeholder="Search maintenance issues..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 hover:border-primary/50"
+                    />
+                  </div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button className="gap-2" onClick={() => {/* TODO: Open create maintenance modal */}}>
+                      <Plus className="w-4 h-4" />
+                      Report Issue
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
 
-            <Card className="p-6 mb-6">
+              <motion.div
+                className="mb-8"
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+              >
+                <ExpandableTabs
+                  tabs={tabs}
+                  className="w-full md:w-auto"
+                  activeColor="text-primary"
+                  onChange={handleTabChange}
+                />
+              </motion.div>
+
+              <motion.div
+                variants={stagger}
+                initial="initial"
+                animate="animate"
+              >
+                <motion.div
+                  variants={fadeInUp}
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="p-6 mb-6 hover:shadow-lg transition-all duration-300">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin mr-2" />
@@ -269,10 +327,13 @@ export default function MaintenancePage() {
                   </table>
                 </div>
               )}
-            </Card>
-          </div>
-        </main>
-      </div>
+                  </Card>
+                </motion.div>
+              </motion.div>
+            </div>
+          </main>
+        </div>
+      </motion.div>
     </div>
   )
 }
